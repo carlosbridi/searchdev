@@ -34,9 +34,9 @@ module.exports = {
         techs: techsArray,
         location
       })
+      return res.json(dev);
     }
       
-    return res.json(dev);
   },
   
 
