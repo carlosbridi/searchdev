@@ -38,13 +38,16 @@ function Main() {
       <Marker coordinate={{ latitude: -26.820001, longitude: -49.2769641 }}>
         <Image style={styles.avatar} souce={{uri: 'https://avatars0.githubusercontent.com/u/7713044?s=460&v=4'}} />
       
-        <Callout>
-
+        <Callout >
+          <View style={styles.callout}>
+            <Text style={styles.devName}>Carlos Bridi</Text>
+            <Text style={styles.devBio}>Teste 1238391289382981392132</Text>
+            <Text style={styles.devTechs}>React, ReactNaatic</Text>
+          </View>
         </Callout>
-      
       </Marker>
     </MapView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -57,6 +60,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 4,
     borderColor: '#FFF'
+  },
+  callout: {
+    width: 260,
+  },
+  devName:{
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+
+  devBio: {
+    color: '#666',
+    marginTop: 5
+  },
+
+  devTechs: {
+    marginTop: 5
   }
 })
 
