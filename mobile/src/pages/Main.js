@@ -4,9 +4,12 @@ import { StyleSheet, Image, View, Text, TextInput, TouchableOpacity } from 'reac
 import {requestPermissionsAsync, getCurrentPositionAsync} from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons'
 
+import api from '../services/api';
 
 function Main({navigation}) {
-  const [currentRegion, setCurrentRegion] = useState(null)
+  const [devs, setDevs] = useState([]);
+  const [currentRegion, setCurrentRegion] = useState(null);
+  const [techs, setTechs] = useState('');
 
   useEffect(() => {
     async function loadInitialPosition(){
@@ -29,7 +32,26 @@ function Main({navigation}) {
 
     }
     loadInitialPosition();
-  }, [])
+  }, []);
+
+  async function loadDevs(){
+    const { latitude, longitude } = currentRegion;
+
+    const response = await api.get('/search', {
+      params: {
+        latitude, 
+        longitude,
+        techs
+      }
+    });
+
+    setDevs(response.data.devs);
+  }
+
+  function handleRegionChanged(region){
+    console.log(region);
+    setCurrentRegion(region);
+  }
 
   if (!currentRegion){
     return null;
@@ -37,20 +59,27 @@ function Main({navigation}) {
 
   return (
     <>
-      <MapView initialRegion={currentRegion} style={styles.map}> 
-        <Marker coordinate={{ latitude: -26.820001, longitude: -49.2769641 }}>
-          <Image style={styles.avatar} souce={{uri: 'https://avatars0.githubusercontent.com/u/7713044'}} />
+      <MapView onRegionChangeComplete={handleRegionChanged} initialRegion={currentRegion} style={styles.map}> 
+        {devs.map(dev => (
+          <Marker 
+            key={dev._id}
+            coordinate={{ longitude: dev.location.coordinates[0], 
+                          latitude: dev.location.coordinates[1] 
+                          }}
+          >
+          <Image style={styles.avatar} source={{ uri: dev.avatar_url }} />
         
           <Callout onPress={() => {
-            navigation.navigate('Profile', {github_username: 'carlosbridi'})
+            navigation.navigate('Profile', {github_username: dev.github_username})
           }}>
             <View style={styles.callout}>
-              <Text style={styles.devName}>Carlos Bridi</Text>
-              <Text style={styles.devBio}>Teste 1238391289382981392132</Text>
-              <Text style={styles.devTechs}>React, ReactNaatic</Text>
-            </View>
-          </Callout>
-        </Marker>
+                <Text style={styles.devName}>{dev.name}</Text>
+                <Text style={styles.devBio}>{dev.bio}</Text>
+                <Text style={styles.devTechs}>{dev.techs.join(', ')}</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
       <View style={styles.searchForm}>
           <TextInput style={styles.searchInput}
@@ -58,9 +87,10 @@ function Main({navigation}) {
             placeholderTextColor="#999"
             autoCapitalize="words"
             autoCorrect={false}
+            onChangeText={setTechs}
             />
 
-          <TouchableOpacity onPress={() => {}} style={styles.loadButton}>
+          <TouchableOpacity onPress={loadDevs} style={styles.loadButton}>
             <MaterialIcons name="my-location" size={20} color="#FFF" />
           </TouchableOpacity>
 
